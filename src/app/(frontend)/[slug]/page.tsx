@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { PayloadRedirects } from "@/components/PayloadRedirects";
 import configPromise from "@payload-config";
 import { getPayload, type RequiredDataFromCollectionSlug } from "payload";
 import { draftMode } from "next/headers";
 import React, { cache } from "react";
-import { homeStatic } from "@/endpoints/seed/home-static";
+// import { homeStatic } from "@/endpoints/seed/home-static";
 
 import { RenderBlocks } from "@/blocks/RenderBlocks";
 import { RenderHero } from "@/heros/RenderHero";
@@ -29,7 +30,7 @@ export async function generateStaticParams() {
   const params =
     pages.docs
       ?.filter((doc) => {
-        return doc.slug !== "home" && typeof doc.slug === 'string';
+        return doc.slug !== "home" && typeof doc.slug === "string";
       })
       .map(({ slug }) => {
         return { slug: String(slug) };
@@ -46,19 +47,16 @@ type Args = {
 
 export default async function Page({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode();
-  const { slug = "home" } = await paramsPromise;
+  const { slug } = await paramsPromise;
+  if (!slug) return notFound();
   const url = "/" + slug;
 
-  let page: RequiredDataFromCollectionSlug<"pages"> | null;
-
-  page = await queryPageBySlug({
+  const page: RequiredDataFromCollectionSlug<"pages"> | null = await queryPageBySlug({
     slug,
   });
 
-  // Remove this code once your website is seeded
-  if (!page && slug === "home") {
-    page = homeStatic;
-  }
+  // Enforce that a page must exist; do not fallback to seeded content
+  // If not found, let the redirects handle it
 
   if (!page) {
     return <PayloadRedirects url={url} />;
@@ -83,7 +81,8 @@ export default async function Page({ params: paramsPromise }: Args) {
 export async function generateMetadata({
   params: paramsPromise,
 }: Args): Promise<Metadata> {
-  const { slug = "home" } = await paramsPromise;
+  const { slug } = await paramsPromise;
+  if (!slug) return generateMeta({ doc: null });
   const page = await queryPageBySlug({
     slug,
   });

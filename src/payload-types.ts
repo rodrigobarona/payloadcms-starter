@@ -201,7 +201,7 @@ export interface Page {
     description?: string | null;
   };
   publishedAt?: string | null;
-  slug?: string | null;
+  slug: string;
   slugLock?: boolean | null;
   updatedAt: string;
   createdAt: string;
@@ -248,7 +248,7 @@ export interface Post {
         name?: string | null;
       }[]
     | null;
-  slug?: string | null;
+  slug: string;
   slugLock?: boolean | null;
   updatedAt: string;
   createdAt: string;
@@ -353,7 +353,7 @@ export interface Media {
 export interface Category {
   id: number;
   title: string;
-  slug?: string | null;
+  slug: string;
   slugLock?: boolean | null;
   parent?: (number | null) | Category;
   breadcrumbs?:

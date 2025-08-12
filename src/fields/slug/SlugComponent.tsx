@@ -1,16 +1,23 @@
-'use client'
-import React, { useCallback } from 'react'
-import { TextFieldClientProps } from 'payload'
+"use client";
+import React, { useCallback } from "react";
+import { TextFieldClientProps } from "payload";
 
-import { useField, Button, TextInput, FieldLabel, useFormFields, useForm } from '@payloadcms/ui'
+import {
+  useField,
+  Button,
+  TextInput,
+  FieldLabel,
+  useFormFields,
+  useForm,
+} from "@payloadcms/ui";
 
-import { formatSlug } from './formatSlug'
-import './index.scss'
+import { formatSlug } from "./formatSlug";
+import "./index.scss";
 
 type SlugComponentProps = {
-  fieldToUse: string
-  checkboxFieldPath: string
-} & TextFieldClientProps
+  fieldToUse: string;
+  checkboxFieldPath: string;
+} & TextFieldClientProps;
 
 export const SlugComponent: React.FC<SlugComponentProps> = ({
   field,
@@ -19,61 +26,65 @@ export const SlugComponent: React.FC<SlugComponentProps> = ({
   path,
   readOnly: readOnlyFromProps,
 }) => {
-  const { label } = field
+  const { label } = field;
 
-  const checkboxFieldPath = path?.includes('.')
+  const checkboxFieldPath = path?.includes(".")
     ? `${path}.${checkboxFieldPathFromProps}`
-    : checkboxFieldPathFromProps
+    : checkboxFieldPathFromProps;
 
-  const { value, setValue } = useField<string>({ path: path || field.name })
+  const { value, setValue } = useField<string>({ path: path || field.name });
 
-  const { dispatchFields, getDataByPath } = useForm()
+  const { dispatchFields, getDataByPath } = useForm();
 
   const isLocked = useFormFields(([fields]) => {
-    return fields[checkboxFieldPath]?.value as string
-  })
+    return fields[checkboxFieldPath]?.value as string;
+  });
 
   const handleGenerate = useCallback(
     (e: React.MouseEvent<Element>) => {
-      e.preventDefault()
+      e.preventDefault();
 
-      const targetFieldValue = getDataByPath(fieldToUse) as string
+      const targetFieldValue = getDataByPath(fieldToUse) as string;
 
       if (targetFieldValue) {
-        const formattedSlug = formatSlug(targetFieldValue)
+        const formattedSlug = formatSlug(targetFieldValue);
 
-        if (value !== formattedSlug) setValue(formattedSlug)
+        if (value !== formattedSlug) setValue(formattedSlug);
       } else {
-        if (value !== '') setValue('')
+        // Do not overwrite with blank when source field is empty
       }
     },
-    [setValue, value, fieldToUse, getDataByPath],
-  )
+    [setValue, value, fieldToUse, getDataByPath]
+  );
 
   const handleLock = useCallback(
     (e: React.MouseEvent<Element>) => {
-      e.preventDefault()
+      e.preventDefault();
 
       dispatchFields({
-        type: 'UPDATE',
+        type: "UPDATE",
         path: checkboxFieldPath,
         value: !isLocked,
-      })
+      });
     },
-    [isLocked, checkboxFieldPath, dispatchFields],
-  )
+    [isLocked, checkboxFieldPath, dispatchFields]
+  );
 
   return (
     <div className="field-type slug-field-component">
       <div className="label-wrapper">
         <FieldLabel htmlFor={`field-${path}`} label={label} />
         {!isLocked && (
-          <Button className="lock-button" buttonStyle="none" onClick={handleGenerate}>
+          <Button
+            className="lock-button"
+            buttonStyle="none"
+            onClick={handleGenerate}
+          >
             Generate
           </Button>
         )}
         <Button className="lock-button" buttonStyle="none" onClick={handleLock}>
-          {isLocked ? 'Unlock' : 'Lock'}
+          {isLocked ? "Unlock" : "Lock"}
         </Button>
       </div>
       <TextInput
@@ -83,5 +94,5 @@ export const SlugComponent: React.FC<SlugComponentProps> = ({
         readOnly={Boolean(readOnlyFromProps || isLocked)}
       />
     </div>
-  )
-}
+  );
+};
